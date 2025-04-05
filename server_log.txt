@@ -1,0 +1,7 @@
+File 'TEST.TXT' uploaded successfully with valid integrity.
+File 'TEST.TXT' downloaded successfully.
+New connection from ('127.0.0.1', 61861)
+New connection from ('127.0.0.1', 61894)
+New connection from ('127.0.0.1', 61915)
+New connection from ('127.0.0.1', 61972)
+Client ('127.0.0.1', 61972) disconnected gracefully.

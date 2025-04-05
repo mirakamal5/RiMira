@@ -64,17 +64,17 @@ def list_files(client):
 
 def main():
     server_ip = input("Enter server IP (localhost if running locally): ")
-    port = 5555
+    port = 5556
     
     try:
         client = socket(AF_INET, SOCK_STREAM)
         client.connect((server_ip, port))
         
-        print(client.recv(1024).decode())
+        print(client.recv(1024).decode().strip())
         
         while True:
             print("\nChoose an option:")
-            print("1. TREASURE <filename> <size> (Upload)")
+            print("1. TREASURE <filename> (Upload)")
             print("2. REVEAL <filename> (Download)")
             print("3. MAP (List Files)")
             print("4. END QUEST (Exit)")
@@ -95,8 +95,8 @@ def main():
                     print("INVALID COMMAND! Usage: REVEAL <filename>")
             elif command == "MAP":
                 list_files(client)
-            elif command == "END QUEST":
-                client.send("END QUEST".encode())
+            elif command.replace(" ", "") == "ENDQUEST":
+                client.send("ENDQUEST".encode())
                 print(client.recv(1024).decode())
                 break
             else:

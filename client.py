@@ -21,14 +21,11 @@ def upload_file(client, filename):
     
     client.send(f"TREASURE {basename} {filesize} {filehash}".encode())
     
-    response = client.recv(1024).decode()
-    if response.startswith("READY"):
-        with open(filename, 'rb') as f:
-            while data := f.read(1024):
-                client.send(data)
-        print(client.recv(1024).decode())
-    else:
-        print(response)
+    with open(filename, 'rb') as f:
+        while data := f.read(1024):
+            client.send(data)
+    print(client.recv(1024).decode())
+    
 
 def download_file(client, filename):
     client.send(f"REVEAL {filename}".encode())
@@ -73,12 +70,6 @@ def main():
         print(client.recv(1024).decode().strip())
         
         while True:
-            print("\nChoose an option:")
-            print("1. TREASURE <filename> (Upload)")
-            print("2. REVEAL <filename> (Download)")
-            print("3. MAP (List Files)")
-            print("4. END QUEST (Exit)")
-            
             command = input("> ").strip().upper()
             
             if command.startswith("TREASURE"):

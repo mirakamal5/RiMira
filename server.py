@@ -24,10 +24,17 @@ def calc_hash(filepath):
 port = 5556
 server = socket(AF_INET, SOCK_STREAM)
 server.bind(('', port))
+
 server.listen(500)
 
 def handleclient(client, addr):
-    client.send("Welcome to Treasure Hunt Server!\n".encode())
+    client.send("Welcome to Treasure Hunt!\n"
+    "Choose an option:\n"
+    "1. TREASURE <filename> <size> (Upload)\n"
+    "2. REVEAL <filename> (Download)\n"
+    "3. MAP (List Files)\n"
+    "4. END QUEST (Exit)\n".encode())
+
     log_event(f"New connection from {addr}")
 
     while True:
@@ -88,10 +95,13 @@ def handleclient(client, addr):
 
             elif command == "MAP":
                 files = os.listdir(SHARED_DIR)
-                client.send(("\n".join(files) if files else "No files available.").encode())
+                if files:
+                    client.send("\n".join(files).encode())
+                else:
+                    client.send("No files available.".encode())
 
             elif command == "ENDQUEST":
-                client.send("QUEST ENDED! Safe travels.".encode())
+                client.send("QUEST ENDED! Safe travels, adventurer.".encode())
                 log_event(f"Client {addr} disconnected gracefully.")
                 break
                 
@@ -107,6 +117,7 @@ def handleclient(client, addr):
 while True:
     try:
         client, addr = server.accept()
-        threading.Thread(target=handleclient, args=(client, addr)).start()
+        clienthread = threading.Thread(target=handleclient, args=(client,addr))
+        clienthread.start()
     except Exception as e:
         log_event(f"Server error: {str(e)}")

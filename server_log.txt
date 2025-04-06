@@ -5,3 +5,8 @@ New connection from ('127.0.0.1', 61894)
 New connection from ('127.0.0.1', 61915)
 New connection from ('127.0.0.1', 61972)
 Client ('127.0.0.1', 61972) disconnected gracefully.
+New connection from ('127.0.0.1', 59236)
+File 'TEST_v1.TXT' uploaded successfully.
+File 'TEST.TXT' downloaded.
+File 'TEST_V1.TXT' downloaded.
+Client ('127.0.0.1', 59236) disconnected gracefully.

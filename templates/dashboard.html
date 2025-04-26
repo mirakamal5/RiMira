@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Dashboard</h2>
+
+        <!-- File Upload Section -->
+        {% if session.get('user_id') %}
+            <h3>Upload a File</h3>
+            <form id="uploadForm" method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" class="upload-form">
+                <input type="file" name="file" id="fileInput" required>
+                <button type="submit">Upload</button>
+            </form>
+
+            <!-- Progress Bar -->
+            <div id="progress-container" style="width: 100%; background: #f3f3f3; border-radius: 5px; margin-top: 20px; display: none;">
+                <div id="progress-bar" style="height: 20px; width: 0; background: green; border-radius: 5px;"></div>
+            </div>
+            <p id="progress-text" style="text-align: center; margin-top: 10px;"></p>
+        {% else %}
+            <p>Please log in to upload files.</p>
+        {% endif %}
+
+        <!-- Available Files Section -->
+        <h3>Available Files</h3>
+        <ul class="file-list">
+            {% for file in files %}
+            <li class="file-item">
+                <span>{{ file.filename }} - {{ file.size }} bytes</span>
+                <a href="{{ url_for('download_file', filename=file.filename) }}" class="download-btn">Download</a>
+
+                {% if session.get('role') == 'admin' %}
+                <!-- Only show delete button if user is admin -->
+                <form method="POST" action="{{ url_for('delete_file', file_id=file.id) }}" style="display: inline;">
+                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this file?')">Delete</button>
+                </form>
+                {% endif %}
+            </li>
+            {% else %}
+            <li>No files uploaded yet.</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Logs Section for Admins -->
+        {% if session.get('role') == 'admin' %}
+        <h3>Activity Logs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Action</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.username }}</td>
+                    <td>{{ log.action }}</td>
+                    <td>{{ log.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        <!-- Logout Button -->
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        {% endif %}
+    </div>
+
+    <script>
+        // File upload with progress bar
+        $('#uploadForm').on('submit', function(e) {
+            e.preventDefault(); // Prevent form from submitting normally
+
+            var formData = new FormData(this);
+            var xhr = new XMLHttpRequest();
+
+            // Show progress bar when upload starts
+            $('#progress-container').show();
+
+            // Update progress bar as file uploads
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    var percent = (e.loaded / e.total) * 100;
+                    $('#progress-bar').css('width', percent + '%');
+                    $('#progress-text').text('Uploading... ' + Math.round(percent) + '%');
+                }
+            }, false);
+
+            // On upload complete
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    $('#progress-bar').css('width', '100%');
+                    $('#progress-text').text('Upload complete!');
+                    setTimeout(function() {
+                        $('#progress-container').hide(); // Hide progress bar after 2 seconds
+                    }, 2000);
+                } else {
+                    $('#progress-text').text('Error uploading file.');
+                }
+            };
+
+            // Send the form data (file)
+            xhr.open('POST', '{{ url_for("upload_file") }}', true);
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>

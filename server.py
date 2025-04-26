@@ -43,60 +43,89 @@ def handleclient(client, addr):
             if not option:
                 break
 
-            request = option.split()
-            if not request:
-                continue
-                
-            command = request[0].upper()
+            parts = option.split(maxsplit=1)
+            command = parts[0].upper()
+            arguments = parts[1] if len(parts) > 1 else ""
 
-            if command == "TREASURE" and len(request) == 4:
-                name = request[1] 
-                size = int(request[2])
-                hsh = request[3]
+            if command == "TREASURE":
+                try:
+                    # Split from the RIGHT: separate size and hash first
+                    args = arguments.rsplit(' ', 2)
+                    if len(args) != 3:
+                        client.send("INVALID TREASURE COMMAND!".encode())
+                        continue
+                    name = args[0]         # filename (can have spaces)
+                    size = int(args[1])    # size (must be int)
+                    hsh = args[2]
+                    
+                    original_name, ext = os.path.splitext(name)
+                    name = original_name
 
-                fpath = os.path.join(SHARED_DIR, name)
-                dup = 1
-                while os.path.exists(fpath):
-                    name, ext = os.path.splitext(name)
-                    name = f"{name}_v{dup}{ext}"
-                    fpath = os.path.join(SHARED_DIR, name)
-                    dup += 1
-                
-                with open(fpath, 'wb') as f:
-                    brcv = 0
-                    while brcv < size:
-                        data = client.recv(1024)
-                        if not data:
-                            break
-                        brcv += len(data)
-                        f.write(data)
-                
-                comphash = calc_hash(fpath)
-                if comphash == hsh:
-                    log_event(f"File '{name}' uploaded successfully.")
-                    client.send(f"TREASURE BURIED! ({name})".encode())
+                    fpath = os.path.join(SHARED_DIR, f"{name}{ext}")
+                    dup = 1
+                    while os.path.exists(fpath):
+                        name = f"{original_name}_v{dup}"
+                        fpath = os.path.join(SHARED_DIR, f"{name}{ext}")
+                        dup += 1
+                    
+                    with open(fpath, 'wb') as f:
+                        brcv = 0
+                        while brcv < size:
+                            data = client.recv(1024)
+                            if not data:
+                                break
+                            brcv += len(data)
+                            f.write(data)
+                    
+                    comphash = calc_hash(fpath)
+                    if comphash == hsh:
+                        log_event(f"File '{name}{ext}' uploaded successfully.")
+                        client.send(f"TREASURE BURIED! ({name}{ext})".encode())
+
+                    else:
+                        os.remove(fpath)
+                        log_event(f"File '{name}{ext}' upload failed (hash mismatch).")
+                        client.send("TREASURE CORRUPTED! Upload failed.".encode())
+                except Exception:
+                    client.send("INVALID TREASURE COMMAND!".encode())
+                    continue
+
+            elif command == "REVEAL":
+                args = arguments.rsplit(' ', 1)  # split once from the right
+                if len(args) == 1:
+                    name = args[0]
+                    offset = 0
+                elif len(args) == 2:
+                    name = args[0]
+                    offset = int(args[1])
                 else:
-                    os.remove(fpath)
-                    log_event(f"File '{name}' upload failed (hash mismatch).")
-                    client.send("TREASURE CORRUPTED! Upload failed.".encode())
+                    client.send("INVALID REVEAL COMMAND!".encode())
+                    continue
 
-            elif command == "REVEAL" and len(request) == 2:
-                name = request[1]
                 path = os.path.join(SHARED_DIR, name)
+                
                 if os.path.exists(path):
                     fhash = calc_hash(path)
-                    client.send(f"READY {os.path.getsize(path)} {fhash}".encode())
+                    filesize = os.path.getsize(path)
+                    client.send(f"READY {filesize} {fhash}".encode())
                     with open(path, 'rb') as f:
-                        while chunk := f.read(1024):
+                        f.seek(offset)
+                        remaining = filesize - offset
+                        while remaining > 0:
+                            chunk = f.read(min(1024, remaining))
+                            if not chunk:
+                                break
                             client.send(chunk)
-                    log_event(f"File '{name}' downloaded.")
+                            remaining -= len(chunk)
+                    log_event(f"File '{name}' downloaded (offset {offset}).")
                 else:
                     client.send("TREASURE NOT FOUND!".encode())
+
 
             elif command == "MAP":
                 files = os.listdir(SHARED_DIR)
                 if files:
-                    client.send("\n".join(files).encode())
+                    client.send("".join(files).encode())
                 else:
                     client.send("No files available.".encode())
 

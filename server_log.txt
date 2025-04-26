@@ -10,3 +10,39 @@ File 'TEST_v1.TXT' uploaded successfully.
 File 'TEST.TXT' downloaded.
 File 'TEST_V1.TXT' downloaded.
 Client ('127.0.0.1', 59236) disconnected gracefully.
+New connection from ('127.0.0.1', 52418)
+File 'TEST_v1_v2.TXT' uploaded successfully.
+File 'TEST.TXT' downloaded (offset 0).
+File 'TEST.TXT' downloaded (offset 0).
+Error with ('127.0.0.1', 52418): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 52518)
+File 'TEST_v1_v2_v3.TXT' uploaded successfully.
+File 'TEST.TXT' downloaded (offset 0).
+Error with ('127.0.0.1', 52518): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 52553)
+New connection from ('127.0.0.1', 52560)
+File 'IMPROMPTO.PDF' uploaded successfully.
+File 'IMPROMPTO.PDF' downloaded (offset 0).
+File 'IMPROMPTO.PDF' downloaded (offset 0).
+File 'IMPROMPTO.PDF' downloaded (offset 0).
+New connection from ('127.0.0.1', 52666)
+File 'IMPROMPTO.PDF' downloaded (offset 0).
+File 'IMPROMPTO.PDF' downloaded (offset 0).
+Error with ('127.0.0.1', 52666): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 52805)
+Error with ('127.0.0.1', 52805): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 52823)
+File 'Academic Transcipt' uploaded successfully.
+Error with ('127.0.0.1', 52823): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 52913)
+File 'Academic Transcipt.pdf' uploaded successfully.
+File 'test.txt' uploaded successfully.
+File 'test.txt' downloaded (offset 0).
+Error with ('127.0.0.1', 52913): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 52968)
+Error with ('127.0.0.1', 52968): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 53022)
+New connection from ('127.0.0.1', 53052)
+File 'Academic Transcipt_v1.pdf' uploaded successfully.
+File 'Academic Transcipt_v1.pdf' downloaded (offset 0).
+File 'Academic Transcipt.pdf' downloaded (offset 0).

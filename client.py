@@ -28,24 +28,69 @@ def upload_file(client, filename):
     
 
 def download_file(client, filename):
-    client.send(f"REVEAL {filename}".encode())
+    offset = 0
+
+    # Path to save the file in the Downloads folder
+    downloads = os.path.join(os.path.expanduser("~"), "Downloads")
+    os.makedirs(downloads, exist_ok=True)
+    basename = os.path.basename(filename)
+    save_path = os.path.join(downloads, basename)
+
+    # Auto-rename if file already exists
+    dup = 1
+    while os.path.exists(save_path):
+        name, ext = os.path.splitext(basename)
+        new_name = f"{name}({dup}){ext}"
+        save_path = os.path.join(downloads, new_name)
+        dup += 1
+
+    # Check if partial file exists (after determining the correct save_path!)
+    if os.path.exists(save_path):
+        offset = os.path.getsize(save_path)
+
+
+    # Send request to the server with offset
+    client.send(f"REVEAL {filename} {offset}".encode())
     response = client.recv(1024).decode().split()
-    
+
     if response[0] == "READY":
         filesize = int(response[1])
         filehash = response[2]
-        
-        with open(filename, 'wb') as f:
-            remaining = filesize
+
+        # Open the file in append mode if we're resuming
+        mode = 'ab' if offset > 0 else 'wb'
+        with open(save_path, mode) as f:
+            remaining = filesize - offset
+            total_downloaded = offset  # Start from the last offset
+
             while remaining > 0:
                 data = client.recv(min(1024, remaining))
+                if not data:
+                    break
                 f.write(data)
                 remaining -= len(data)
-        
-        if calc_hash(filename) == filehash:
-            print(f"TREASURE UNEARTHED! ({filename})")
+                total_downloaded += len(data)
+
+                # Calculate progress as a percentage
+                progress = (total_downloaded / filesize) * 100
+
+                # Print progress in 25% increments
+                if progress >= 100:
+                    print("Downloading... 100%")
+                elif progress >= 75:
+                    print("Downloading... 75%")
+                elif progress >= 50:
+                    print("Downloading... 50%")
+                elif progress >= 25:
+                    print("Downloading... 25%")
+                elif progress >= 0:
+                    print("Downloading... 0%")
+
+        # Verify file integrity
+        if calc_hash(save_path) == filehash:
+            print(f"TREASURE UNEARTHED! Saved to {save_path}")
         else:
-            os.remove(filename)
+            os.remove(save_path)
             print("TREASURE CORRUPTED! Download failed.")
     else:
         print(response[0])
@@ -68,36 +113,45 @@ def main():
         client.connect((server_ip, port))
         
         print(client.recv(1024).decode().strip())
-        
+
         while True:
-            command = input("> ").strip().upper()
-            
-            if command.startswith("TREASURE"):
-                if len(command.split()) >= 2:
-                    filename = command.split()[1]
-                    upload_file(client, filename)
-                else:
-                    print("INVALID COMMAND! Usage: TREASURE <filename>")
-            elif command.startswith("REVEAL"):
-                if len(command.split()) == 2:
-                    filename = command.split()[1]
+            command = input("> ").strip()  # Don't upper() everything
+            if not command:
+                continue
+
+            parts = command.split(maxsplit=1)
+            cmd = parts[0].upper()
+            arguments = parts[1] if len(parts) > 1 else ""
+
+            if cmd == "TREASURE":
+                filepath = arguments if arguments else input("Enter full file path to upload: ").strip()
+                upload_file(client, filepath)
+
+            elif cmd == "REVEAL":
+                filename = arguments
+                print(arguments)
+                if filename:
                     download_file(client, filename)
                 else:
                     print("INVALID COMMAND! Usage: REVEAL <filename>")
-            elif command == "MAP":
+
+            elif cmd == "MAP":
                 list_files(client)
-            elif command.replace(" ", "") == "ENDQUEST":
+
+            elif cmd.replace(" ", "") == "ENDQUEST":
                 client.send("ENDQUEST".encode())
                 print(client.recv(1024).decode())
                 break
+
             else:
                 print("INVALID COMMAND!")
-                
+
     except Exception as e:
         print(f"QUEST FAILED: {e}")
     finally:
         client.close()
         print("Connection closed.")
+
 
 if __name__ == "__main__":
     main()

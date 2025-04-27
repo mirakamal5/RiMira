@@ -1,16 +1,32 @@
-/* static/style.css */
-
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f7f9fc;
+    font-family: 'Georgia', serif;
+    background-color: #f9f9f9;
     margin: 0;
     padding: 0;
+    background-image: url('/static/pic.jpg');
+
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    color: #444;
+}
+
+.container {
+    width: 90%;
+    max-width: 700px;
+    margin: 40px auto;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 h1, h2, h3 {
-    color: #333;
-    text-align: center;
+    font-family: 'Cinzel', serif;
+    color: #4E2A84;
     margin-top: 20px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 a {
@@ -20,16 +36,7 @@ a {
 
 a:hover {
     text-decoration: underline;
-}
-
-.container {
-    width: 90%;
-    max-width: 600px;
-    margin: 30px auto;
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    color: #2980b9;
 }
 
 form {
@@ -42,21 +49,24 @@ input[type="text"],
 input[type="password"],
 input[type="file"],
 button {
-    padding: 10px;
+    padding: 12px;
     font-size: 16px;
-    border-radius: 5px;
+    border-radius: 8px;
     border: 1px solid #ccc;
+    margin-top: 10px;
 }
 
 button {
-    background-color: #3498db;
+    background-color: #f39c12;
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
+    border: none;
 }
 
 button:hover {
-    background-color: #2980b9;
+    background-color: #e67e22;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 ul {
@@ -64,12 +74,85 @@ ul {
     padding: 0;
 }
 
-li {
-    margin: 10px 0;
-}
-
 .flash {
     color: red;
     text-align: center;
     margin-top: 10px;
+}
+
+#progress-container {
+    width: 100%;
+    background: #f3f3f3;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+#progress-bar {
+    height: 20px;
+    width: 0;
+    background: #27ae60;
+    border-radius: 5px;
+}
+
+#progress-text {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="password"], select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+p a {
+    color: #3498db;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f39c12;
+    color: white;
+    text-align: left;
+}
+
+td {
+    background-color: #f9f9f9;
+}
+
+.file-item {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.download-btn, .delete-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.download-btn:hover, .delete-btn:hover {
+    background-color: #2980b9;
 }

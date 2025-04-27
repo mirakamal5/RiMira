@@ -76,6 +76,7 @@ except Exception as e:
     print(f"Error binding server to port {port}: {str(e)}")
 
 server.listen(500)
+
 print(f"Server is listening on port {port}...")
 
 def handleclient(client, addr):

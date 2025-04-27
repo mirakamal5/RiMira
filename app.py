@@ -160,38 +160,42 @@ def upload_file():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
     # check for duplicates in DB AND filesystem
+        # new — only branch if BOTH DB and FS know about it
     db_duplicate = File.query.filter_by(filename=filename).first()
-    fs_duplicate = os.path.exists(os.path.join('shared_treasures', filename))
-    
-    if db_duplicate or fs_duplicate:
-        action = request.form.get('duplicate_action', 'version')  # 'overwrite' or 'version'
-        
+    fs_duplicate = os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+
+    if db_duplicate and fs_duplicate:
+        action = request.form.get('duplicate_action', 'version')
         if action == 'overwrite':
-            # Delete old records/files
-            if db_duplicate:
-                db.session.delete(db_duplicate)
-            if fs_duplicate:
-                os.remove(os.path.join('shared_treasures', filename))
-            print(f"♻️ Overwriting existing file: {filename}")
+            # delete from DB
+            db.session.delete(db_duplicate)
+            db.session.commit()
+            # delete from disk
+            os.remove(file_path)
+            # file_path remains the same
         else:
-            # Create new version (file_v2.pdf)
+            # versioned upload
             version = 1
+            base, ext = os.path.splitext(filename)
             while True:
-                new_name = f"{original_name}_v{version}{ext}"
-                if not File.query.filter_by(filename=new_name).first() and not os.path.exists(os.path.join('shared_treasures', new_name)):
+                new_name = f"{base}_v{version}{ext}"
+                new_path = os.path.join(app.config['UPLOAD_FOLDER'], new_name)
+                if not os.path.exists(new_path):
                     filename = new_name
+                    file_path = new_path
                     break
                 version += 1
-            print(f"🆕 Created new version: {filename}")
-            
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # else:  # first‐time upload, skip branching entirely
     
-    file.seek(0)
-
+    file.seek(0) 
+    #read and save:
     with open(file_path, 'wb') as f:
         while chunk := file.read(1024):  # Read and write 1024 bytes at a time
             f.write(chunk)
 
+    # finally, record metadata
+    file_size = os.path.getsize(file_path)
 
     new_file = File(filename=filename, size=file_size, upload_time=datetime.utcnow())
     db.session.add(new_file)

@@ -31,6 +31,7 @@
             <h2>Upload a File</h2>
             <form id="uploadForm" enctype="multipart/form-data" method="POST" action="{{ url_for('upload_file') }}">
                 <input type="file" name="file" id="fileInput" required>
+                <input type="hidden" id="duplicateAction" name="duplicate_action" value="version">
                 <button type="submit">Upload</button>
             </form>
 
@@ -244,6 +245,45 @@
             });
         }
     </script>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Stop normal form submission
+        
+            const form = event.target;
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+        
+            if (!file) {
+                alert('No file selected!');
+                return;
+            }
+        
+            // Now check with the server if the filename already exists
+            fetch('/get_available_files')
+                .then(response => response.json())
+                .then(data => {
+                    const files = data.files;
+                    if (files.includes(file.name)) {
+                        // File already exists
+                        const userChoice = confirm("A file with this name already exists.\n\nOK: Overwrite\nCancel: Upload New Version");
+        
+                        if (userChoice) {
+                            document.getElementById('duplicateAction').value = 'overwrite';
+                        } else {
+                            document.getElementById('duplicateAction').value = 'version';
+                        }
+                    }
+        
+                    // After deciding, finally submit the form
+                    form.submit();
+                })
+                .catch(error => {
+                    console.error('Error checking files:', error);
+                    form.submit(); // In case checking fails, just submit
+                });
+        });
+    </script>
+        
     
 </body>
 </html>

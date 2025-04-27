@@ -15,6 +15,11 @@ app.config['UPLOAD_FOLDER'] = 'shared_treasures'
 app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.secret_key = os.urandom(24)
 
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+
 # Initialize the database
 db = SQLAlchemy(app)
 
@@ -44,7 +49,6 @@ class Log(db.Model):
 def index():
     return render_template('index.html')
 
-# Login route
 # Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -153,6 +157,7 @@ def upload_file():
     file_size = len(file_data)
     file_hash = hashlib.sha256(file_data).hexdigest()
     original_name, ext = os.path.splitext(filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
     # check for duplicates in DB AND filesystem
     db_duplicate = File.query.filter_by(filename=filename).first()
@@ -173,16 +178,16 @@ def upload_file():
             version = 1
             while True:
                 new_name = f"{original_name}_v{version}{ext}"
-                if not File.query.filter_by(filename=new_name).first() and \
-                   not os.path.exists(os.path.join('shared_treasures', new_name)):
+                if not File.query.filter_by(filename=new_name).first() and not os.path.exists(os.path.join('shared_treasures', new_name)):
                     filename = new_name
                     break
                 version += 1
             print(f"🆕 Created new version: {filename}")
-    else:
-        pass
+    
+    with open(file_path, 'wb') as f:
+        while chunk := file.read(1024):  # Read and write 1024 bytes at a time
+            f.write(chunk)
 
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
     new_file = File(filename=filename, size=file_size, upload_time=datetime.utcnow())
     db.session.add(new_file)
@@ -199,53 +204,14 @@ def download_file(filename):
         flash('You must be logged in to download files.', 'warning')
         return redirect(url_for('login'))
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        # Connect to the server
-        s.connect(('localhost', 5559))  # Use the server's IP and port
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(file_path):
+        file_size = os.path.getsize(file_path)
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    else:
+        flash("File not found!", "danger")
+        return redirect(url_for('dashboard'))
 
-        # Send the custom protocol command
-        s.send(f"REVEAL {filename}".encode())
-
-        # Wait for the server's response (file details or error)
-        response = s.recv(1024).decode()
-
-        if response.startswith("READY"):
-            # The server is ready to send the file
-            file_size, file_hash = response.split()[1:3]
-            file_data = b"" 
-            while True:
-                chunk = s.recv(1024)
-                if not chunk:
-                    break
-                file_data += chunk
-
-            # Save the file to a location on the Flask server
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            with open(file_path, 'wb') as f:
-                f.write(file_data)
-
-            # After downloading, save to database and serve the file
-            file_size = os.path.getsize(file_path)
-            new_file = File(
-                filename=filename,
-                size=file_size,
-                upload_time=datetime.now()
-            )
-            db.session.add(new_file)
-            db.session.commit()
-
-            # Log the download action
-            log = Log(username=session['username'], action=f"downloaded {filename}", timestamp=datetime.utcnow())
-            db.session.add(log)
-            db.session.commit()
-
-            log_activity(f'Downloaded file: {filename}') 
-
-            # After downloading, send the file to the client (browser)
-            return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-        else:
-            flash('File not found or error during download', 'danger')
-            return redirect(url_for('dashboard'))
 
 # Helper function to check allowed file extensions
 def allowed_file(filename):

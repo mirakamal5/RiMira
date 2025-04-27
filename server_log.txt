@@ -74,3 +74,11 @@ New connection from ('127.0.0.1', 54282)
 Error with ('127.0.0.1', 54282): [WinError 10053] An established connection was aborted by the software in your host machine
 New connection from ('127.0.0.1', 54290)
 Error with ('127.0.0.1', 54290): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 54184)
+File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
+Error with ('127.0.0.1', 54184): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 54745)
+File 'quran.pdf' downloaded to C:\Users\reems\Downloads\quran.pdf (offset 0).
+Error with ('127.0.0.1', 54745): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 54786)
+Error with ('127.0.0.1', 54786): [WinError 10053] An established connection was aborted by the software in your host machine

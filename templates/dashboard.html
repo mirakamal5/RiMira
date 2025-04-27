@@ -16,6 +16,7 @@
         <div id="dashboard-buttons" class="dashboard-buttons">
             <div class="button" id="uploadBtn">Upload</div>
             <div class="button" id="downloadBtn">Download</div>
+            <div class="button" id="mapBtn">MAP</div> 
         </div>
 
         <!-- Logout Button (Small Text) -->
@@ -65,6 +66,27 @@
             <button id="backFromDownload" style="margin-top: 20px;">Back</button>
         </div>
 
+        <div id="map-section" style="display: none;">
+            <h2>Map Section</h2>
+
+            <!-- Search Bar -->
+            <input type="text" id="mapSearchInput" placeholder="Search files..." style="margin-bottom: 20px;">
+
+            <!-- File List Table -->
+            <table id="mapFileTable">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                    </tr>
+                </thead>
+                <tbody id="mapFileTableBody">
+                    <!-- Dynamically populated -->
+                </tbody>
+            </table>
+
+            <button id="backFromMap" style="margin-top: 20px;">Back</button>
+        </div>
+
     </div>
 
     <script>
@@ -83,6 +105,15 @@
             loadAvailableFiles();  // <-- load files when clicking Download
         });
 
+        //Map Section
+        $('#mapBtn').click(function() {
+            $('#dashboard-buttons').hide();
+            $('#map-section').show();
+            $('#upload-section').hide();
+            $('#download-section').hide();
+            loadMapFiles(); 
+        });
+
         // Back Button from Upload
         $('#backFromUpload').click(function() {
             $('#upload-section').hide();
@@ -94,6 +125,13 @@
             $('#download-section').hide();
             $('#dashboard-buttons').show();
         });
+
+        // Back Button from MAP
+        $('#backFromMap').click(function() {
+            $('#map-section').hide();
+            $('#dashboard-buttons').show();
+        });
+
 
         // Upload Progress Bar
         $('#uploadForm').on('submit', function(e) {
@@ -139,6 +177,14 @@
             });
         });
 
+        // Live search in the Map Section
+        $('#mapSearchInput').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#mapFileTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
         // Load Available Files Dynamically
         function loadAvailableFiles() {
             $.ajax({
@@ -169,6 +215,35 @@
                 }
             });
         }
+        // Load Files Dynamically for Map Section
+        function loadMapFiles() {
+            $.ajax({
+                url: "{{ url_for('get_available_files') }}",  // Endpoint to get the available files for Map
+                method: "GET",
+                success: function(response) {
+                    var files = response.files;
+                    var tbody = $('#mapFileTableBody');
+                    tbody.empty(); // Clear old files
+
+                    if (files.length === 0) {
+                        tbody.append('<tr><td colspan="1" style="text-align: center;">No files available 😔</td></tr>');
+                    } else {
+                        files.forEach(function(file) {
+                            var row = `
+                                <tr>
+                                    <td>${file}</td>
+                                </tr>
+                            `;
+                            tbody.append(row);
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Failed to load map files.');
+                }
+            });
+        }
     </script>
+    
 </body>
 </html>

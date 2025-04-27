@@ -129,3 +129,8 @@ New connection from ('127.0.0.1', 63294)
 Error with ('127.0.0.1', 63294): [WinError 10053] An established connection was aborted by the software in your host machine
 New connection from ('127.0.0.1', 63320)
 Error with ('127.0.0.1', 63320): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63419)
+File 'fall_2025_v3.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 63419): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63426)
+Error with ('127.0.0.1', 63426): [WinError 10053] An established connection was aborted by the software in your host machine

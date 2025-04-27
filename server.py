@@ -90,6 +90,7 @@ def handleclient(client, addr):
                     original_name, ext = os.path.splitext(name)
                     name = original_name
 
+                    fpath = os.path.join(SHARED_DIR, f"{name}{ext}")
                     
                     with open(fpath, 'wb') as f:
                         brcv = 0
@@ -103,7 +104,6 @@ def handleclient(client, addr):
                     comphash = calc_hash(fpath)
                     if comphash == hsh:
                         log_event(f"File '{name}{ext}' uploaded successfully.")
-                        
                         client.send(f"TREASURE BURIED! ({name}{ext})".encode())
                     else:
                         os.remove(fpath)

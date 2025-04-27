@@ -11,7 +11,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///file_sharing.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = 'shared_treasures'
 app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.secret_key = os.urandom(24)
 
@@ -72,7 +72,7 @@ def register():
         role = request.form['role']
 
         # Hash the password before saving
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         new_user = User(username=username, password=hashed_password, role=role)
 
         # Save user to the database
@@ -114,73 +114,88 @@ def dashboard():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'user_id' not in session:
-        flash('You must be logged in to upload files.', 'warning')
+        flash('Login required', 'warning')
         return redirect(url_for('login'))
 
-    if 'file' not in request.files:
-        flash('No file part', 'danger')
+    file = request.files.get('file')
+    if not file or file.filename == '':
+        flash('No file selected', 'danger')
         return redirect(url_for('dashboard'))
 
-    file = request.files['file']
-    if file.filename == '':
-        flash('No selected file', 'danger')
+    if not allowed_file(file.filename):
+        flash('Invalid file type', 'danger')
         return redirect(url_for('dashboard'))
 
-    if file and allowed_file(file.filename):
-        # Get file details
-        filename = secure_filename(file.filename)
-        file_data = file.read()
+    # Get file data
+    filename = secure_filename(file.filename)
+    file_data = file.read()
+    file_size = len(file_data)
+    file_hash = hashlib.sha256(file_data).hexdigest()
+    original_name, ext = os.path.splitext(filename)
 
-        # Calculate file size and hash
-        file_size = len(file_data)
-        file_hash = hashlib.sha256(file_data).hexdigest()
-
-        # Save the file to the shared_treasures folder
-        treasure_folder = os.path.join(app.root_path, 'shared_treasures')
-        if not os.path.exists(treasure_folder):
-            os.makedirs(treasure_folder)
-
-        file_path = os.path.join(treasure_folder, filename)
-        with open(file_path, 'wb') as f:
-            f.write(file_data)
-
-        # Create a socket to communicate with the server (Optional)
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(('localhost', 5559))  # Server IP and port
-            s.send(f"TREASURE {filename} {file_size} {file_hash}".encode())
-            response = s.recv(1024).decode()
-
-            print(f"Server Response: {response}")  # Debugging line
-            if response == f"TREASURE BURIED! ({filename})":
-                # If the upload is successful
-                flash('File uploaded successfully', 'success')
-
-                # Save file metadata to the database
-                new_file = File(
-                    filename=filename,
-                    size=file_size,
-                    upload_time=datetime.now()
-                )
-                db.session.add(new_file)
-                try:
-                    db.session.commit()
-                    print(f"File {filename} added to database successfully")  # Debugging line
-                except Exception as e:
-                    db.session.rollback()
-                    flash(f"Error saving file to database: {e}", 'danger')
-
-                # Log the upload action
-                log = Log(username=session['username'], action=f"uploaded {filename}", timestamp=datetime.utcnow())
-                db.session.add(log)
-                db.session.commit()
-
-            else:
-                flash(f'File upload failed: {response}', 'danger')
-
-        return redirect(url_for('dashboard'))
+    # check for duplicates in DB AND filesystem
+    db_duplicate = File.query.filter_by(filename=filename).first()
+    fs_duplicate = os.path.exists(os.path.join('shared_treasures', filename))
+    
+    if db_duplicate or fs_duplicate:
+        action = request.form.get('duplicate_action', 'version')  # 'overwrite' or 'version'
+        
+        if action == 'overwrite':
+            # Delete old records/files
+            if db_duplicate:
+                db.session.delete(db_duplicate)
+            if fs_duplicate:
+                os.remove(os.path.join('shared_treasures', filename))
+            print(f"♻️ Overwriting existing file: {filename}")
+        else:
+            # Create new version (file_v2.pdf)
+            version = 1
+            while True:
+                new_name = f"{original_name}_v{version}{ext}"
+                if not File.query.filter_by(filename=new_name).first() and \
+                   not os.path.exists(os.path.join('shared_treasures', new_name)):
+                    filename = new_name
+                    break
+                version += 1
+            print(f"🆕 Created new version: {filename}")
     else:
-        flash('File type not allowed. Please upload a valid file.', 'danger')
+        print(f"✨ New file: {filename}")
+
+    # =============================================
+    # 2. Save to filesystem
+    # =============================================
+    filepath = os.path.join('shared_treasures', filename)
+    with open(filepath, 'wb') as f:
+        f.write(file_data)
+
+    # =============================================
+    # 3. Save to database
+    # =============================================
+    try:
+        new_file = File(
+            filename=filename,
+            size=file_size,
+            upload_time=datetime.now()
+        )
+        db.session.add(new_file)
+        db.session.commit()
+        print(f"💾 Saved to DB: {filename} (ID: {new_file.id})")
+    except Exception as e:
+        db.session.rollback()
+        flash('Database error', 'danger')
         return redirect(url_for('dashboard'))
+
+    # =============================================
+    # 4. Notify the file server
+    # =============================================
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(('localhost', 5559))
+        s.send(f"TREASURE {filename} {file_size} {file_hash}".encode())
+        response = s.recv(1024).decode()
+        print(f"🔌 Server response: {response}")
+
+    flash('Upload successful!', 'success')
+    return redirect(url_for('dashboard'))
 
 # Download file route
 @app.route('/download/<filename>')

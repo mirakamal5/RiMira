@@ -1,8 +1,10 @@
+import os
+import socket
+import hashlib
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 from datetime import datetime
 
 # Initialize Flask app and configurations
@@ -37,10 +39,6 @@ class Log(db.Model):
     action = db.Column(db.String(200), nullable=False)  # "uploaded file.txt" or "deleted file.png"
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-# Initialize the database
-with app.app_context():
-    db.create_all()
-
 # Home route
 @app.route('/')
 def index():
@@ -65,6 +63,30 @@ def login():
 
     return render_template('login.html')
 
+# Register route
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        role = request.form['role']
+
+        # Hash the password before saving
+        hashed_password = generate_password_hash(password, method='sha256')
+        new_user = User(username=username, password=hashed_password, role=role)
+
+        # Save user to the database
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error: {e}", 'danger')
+
+    return render_template('register.html')
+
 # Logout route
 @app.route('/logout')
 def logout():
@@ -79,7 +101,7 @@ def dashboard():
         flash('You must be logged in to access the dashboard.', 'warning')
         return redirect(url_for('login'))
 
-    files = File.query.all()
+    files = File.query.all()  # Fetch all uploaded files from the database
 
     # Fetch logs if the user is an admin
     logs = []
@@ -100,30 +122,61 @@ def upload_file():
         return redirect(url_for('dashboard'))
 
     file = request.files['file']
-
     if file.filename == '':
         flash('No selected file', 'danger')
         return redirect(url_for('dashboard'))
 
     if file and allowed_file(file.filename):
+        # Get file details
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        file_data = file.read()
 
-        new_file = File(
-            filename=filename,
-            size=os.path.getsize(filepath),
-            upload_time=datetime.now()
-        )
-        db.session.add(new_file)
-        db.session.commit()
+        # Calculate file size and hash
+        file_size = len(file_data)
+        file_hash = hashlib.sha256(file_data).hexdigest()
 
-        # Log the upload action
-        log = Log(username=session['username'], action=f"uploaded {filename}", timestamp=datetime.utcnow())
-        db.session.add(log)
-        db.session.commit()
+        # Save the file to the shared_treasures folder
+        treasure_folder = os.path.join(app.root_path, 'shared_treasures')
+        if not os.path.exists(treasure_folder):
+            os.makedirs(treasure_folder)
 
-        flash('File uploaded successfully', 'success')
+        file_path = os.path.join(treasure_folder, filename)
+        with open(file_path, 'wb') as f:
+            f.write(file_data)
+
+        # Create a socket to communicate with the server (Optional)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect(('localhost', 5559))  # Server IP and port
+            s.send(f"TREASURE {filename} {file_size} {file_hash}".encode())
+            response = s.recv(1024).decode()
+
+            print(f"Server Response: {response}")  # Debugging line
+            if response == f"TREASURE BURIED! ({filename})":
+                # If the upload is successful
+                flash('File uploaded successfully', 'success')
+
+                # Save file metadata to the database
+                new_file = File(
+                    filename=filename,
+                    size=file_size,
+                    upload_time=datetime.now()
+                )
+                db.session.add(new_file)
+                try:
+                    db.session.commit()
+                    print(f"File {filename} added to database successfully")  # Debugging line
+                except Exception as e:
+                    db.session.rollback()
+                    flash(f"Error saving file to database: {e}", 'danger')
+
+                # Log the upload action
+                log = Log(username=session['username'], action=f"uploaded {filename}", timestamp=datetime.utcnow())
+                db.session.add(log)
+                db.session.commit()
+
+            else:
+                flash(f'File upload failed: {response}', 'danger')
+
         return redirect(url_for('dashboard'))
     else:
         flash('File type not allowed. Please upload a valid file.', 'danger')
@@ -135,64 +188,53 @@ def download_file(filename):
     if 'user_id' not in session:
         flash('You must be logged in to download files.', 'warning')
         return redirect(url_for('login'))
-    
-    try:
-        # Use absolute path and force download
-        upload_folder = os.path.abspath(app.config['UPLOAD_FOLDER'])
-        return send_from_directory(upload_folder, filename, as_attachment=True)
-    except FileNotFoundError:
-        flash(f'File "{filename}" not found.', 'danger')
-        return redirect(url_for('dashboard'))
 
-# Delete file route (for admin only)
-@app.route('/delete/<int:file_id>', methods=['POST'])
-def delete_file(file_id):
-    if 'role' not in session or session['role'] != 'admin':
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('dashboard'))
+    # Create a socket to communicate with the server
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        # Connect to the server
+        s.connect(('localhost', 5559))  # Use the server's IP and port
 
-    file = File.query.get_or_404(file_id)
+        # Send the custom protocol command
+        s.send(f"REVEAL {filename}".encode())
 
-    try:
-        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-    except FileNotFoundError:
-        pass  # File already deleted
+        # Wait for the server's response (file details or error)
+        response = s.recv(1024).decode()
 
-    db.session.delete(file)
-    db.session.commit()
+        if response.startswith("READY"):
+            # The server is ready to send the file
+            file_size, file_hash = response.split()[1:3]
+            file_data = b"" 
+            while True:
+                chunk = s.recv(1024)
+                if not chunk:
+                    break
+                file_data += chunk
 
-    # Log the delete action
-    log = Log(username=session['username'], action=f"deleted {file.filename}", timestamp=datetime.utcnow())
-    db.session.add(log)
-    db.session.commit()
+            # Save the file to a location on the Flask server
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            with open(file_path, 'wb') as f:
+                f.write(file_data)
 
-    flash('File deleted successfully.', 'success')
-    return redirect(url_for('dashboard'))
-
-# Registration route
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            flash('Username already exists, please choose another.', 'danger')
-        else:
-            role = 'user'
-            if 'role' in session and session['role'] == 'admin':
-                role = request.form['role']
-
-            new_user = User(username=username, password=hashed_password, role=role)
-            db.session.add(new_user)
+            # After downloading, save to database and serve the file
+            file_size = os.path.getsize(file_path)
+            new_file = File(
+                filename=filename,
+                size=file_size,
+                upload_time=datetime.now()
+            )
+            db.session.add(new_file)
             db.session.commit()
-            flash('Registration successful! You can now log in.', 'success')
-            return redirect(url_for('login'))
 
-    return render_template('register.html')
+            # Log the download action
+            log = Log(username=session['username'], action=f"downloaded {filename}", timestamp=datetime.utcnow())
+            db.session.add(log)
+            db.session.commit()
+
+            # After downloading, send the file to the client (browser)
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+        else:
+            flash('File not found or error during download', 'danger')
+            return redirect(url_for('dashboard'))
 
 # Helper function to check allowed file extensions
 def allowed_file(filename):

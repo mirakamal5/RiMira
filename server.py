@@ -21,13 +21,21 @@ def calc_hash(filepath):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-port = 5556
+port = 5559
 server = socket(AF_INET, SOCK_STREAM)
-server.bind(('', port))
+
+# Try to bind the server to the port
+try:
+    server.bind(('', port))
+    print(f"Server is successfully bound to port {port}.")
+except Exception as e:
+    print(f"Error binding server to port {port}: {str(e)}")
 
 server.listen(500)
+print(f"Server is listening on port {port}...")
 
 def handleclient(client, addr):
+    print(f"New connection from {addr}")
     client.send("Welcome to Treasure Hunt!\n"
     "Choose an option:\n"
     "1. TREASURE <filename> <size> (Upload)\n"
@@ -47,15 +55,16 @@ def handleclient(client, addr):
             command = parts[0].upper()
             arguments = parts[1] if len(parts) > 1 else ""
 
+            print(f"Received command: {command} with arguments: {arguments}")
+
             if command == "TREASURE":
                 try:
-                    # Split from the RIGHT: separate size and hash first
                     args = arguments.rsplit(' ', 2)
                     if len(args) != 3:
                         client.send("INVALID TREASURE COMMAND!".encode())
                         continue
-                    name = args[0]         # filename (can have spaces)
-                    size = int(args[1])    # size (must be int)
+                    name = args[0]
+                    size = int(args[1])
                     hsh = args[2]
                     
                     original_name, ext = os.path.splitext(name)
@@ -81,7 +90,6 @@ def handleclient(client, addr):
                     if comphash == hsh:
                         log_event(f"File '{name}{ext}' uploaded successfully.")
                         client.send(f"TREASURE BURIED! ({name}{ext})".encode())
-
                     else:
                         os.remove(fpath)
                         log_event(f"File '{name}{ext}' upload failed (hash mismatch).")
@@ -91,7 +99,7 @@ def handleclient(client, addr):
                     continue
 
             elif command == "REVEAL":
-                args = arguments.rsplit(' ', 1)  # split once from the right
+                args = arguments.rsplit(' ', 1)
                 if len(args) == 1:
                     name = args[0]
                     offset = 0
@@ -121,7 +129,6 @@ def handleclient(client, addr):
                 else:
                     client.send("TREASURE NOT FOUND!".encode())
 
-
             elif command == "MAP":
                 files = os.listdir(SHARED_DIR)
                 if files:
@@ -146,7 +153,9 @@ def handleclient(client, addr):
 while True:
     try:
         client, addr = server.accept()
-        clienthread = threading.Thread(target=handleclient, args=(client,addr))
-        clienthread.start()
+        print(f"Accepted connection from {addr}")
+        client_thread = threading.Thread(target=handleclient, args=(client, addr))
+        client_thread.start()
     except Exception as e:
+        print(f"Error accepting connection: {str(e)}")
         log_event(f"Server error: {str(e)}")

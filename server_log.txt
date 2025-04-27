@@ -46,3 +46,18 @@ New connection from ('127.0.0.1', 53052)
 File 'Academic Transcipt_v1.pdf' uploaded successfully.
 File 'Academic Transcipt_v1.pdf' downloaded (offset 0).
 File 'Academic Transcipt.pdf' downloaded (offset 0).
+New connection from ('127.0.0.1', 64943)
+File 'Lemon_Ricotta_Cheesecake.jpg' upload failed (hash mismatch).
+Error with ('127.0.0.1', 64943): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 64946)
+File 'Lemon_Ricotta_Cheesecake.jpg' upload failed (hash mismatch).
+Error with ('127.0.0.1', 64946): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 65027)
+File 'Almond_Butter_Cookies_No_Sugar_v1.jpg' upload failed (hash mismatch).
+Error with ('127.0.0.1', 65027): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 65030)
+File 'Almond_Butter_Cookies_No_Sugar_v1.jpg' upload failed (hash mismatch).
+Error with ('127.0.0.1', 65030): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 65160)
+File 'Chocolate_Chia_Seed_Pudding_v1.jpg' upload failed (hash mismatch).
+Error with ('127.0.0.1', 65160): [WinError 10053] An established connection was aborted by the software in your host machine

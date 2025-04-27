@@ -28,6 +28,42 @@ def get_downloads_directory():
     os.makedirs(downloads, exist_ok=True)  # Ensure Downloads folder exists
     return downloads
 
+def get_next_version_filename(filename, directory):
+    """Generate the next available versioned filename."""
+    name, ext = os.path.splitext(filename)
+    version = 2  # Start from v2
+    new_filename = f"{name}_v{version}{ext}"
+    while os.path.exists(os.path.join(directory, new_filename)):
+        version += 1
+        new_filename = f"{name}_v{version}{ext}"
+    return new_filename
+
+def handle_duplicate(client, filename, destination_path):
+    """Handle file duplicates by offering options to overwrite or rename."""
+    if os.path.exists(destination_path):
+        client.send(f"A file named '{filename}' already exists.\n"
+                    "Choose an option:\n"
+                    "1. Append to the original file and name the result with a version number.\n"
+                    "2. Just rename the new file with a version number.\n".encode())
+        choice = client.recv(1024).decode().strip()
+
+        if choice == "1":
+            # Append and rename the original file
+            new_version_name = get_next_version_filename(filename, os.path.dirname(destination_path))
+            os.rename(destination_path, os.path.join(os.path.dirname(destination_path), new_version_name))
+            client.send(f"Original file renamed to '{new_version_name}'. New file will be saved as '{filename}'.\n".encode())
+            return destination_path  # Save the file with the original name
+        elif choice == "2":
+            # Save incoming file with a versioned name
+            new_filename = get_next_version_filename(filename, os.path.dirname(destination_path))
+            client.send(f"New file will be saved as '{new_filename}'.\n".encode())
+            return os.path.join(os.path.dirname(destination_path), new_filename)
+        else:
+            client.send("Invalid choice. Upload cancelled.\n".encode())
+            return None
+    else:
+        return destination_path  # No duplicate, return original path
+
 
 port = 5559
 server = socket(AF_INET, SOCK_STREAM)
@@ -75,11 +111,14 @@ def handleclient(client, addr):
                     size = int(args[1])
                     hsh = args[2]
                     
-                    original_name, ext = os.path.splitext(name)
-                    name = original_name
+                    fpath = handle_duplicate(client, name, fpath)
 
-                    fpath = os.path.join(SHARED_DIR, f"{name}{ext}")
+                    if fpath is None:
+                        # Client made invalid choice, cancel upload
+                        continue
+
                     print("Shared Treasures full path:", fpath)
+
                     with open(fpath, 'wb') as f:
                         print(f"Receiving file {name}{ext} of size {size}")
                         print(f"Receiving data chunk of {len(data)} bytes")
@@ -94,11 +133,11 @@ def handleclient(client, addr):
                     
                     comphash = calc_hash(fpath)
                     if comphash == hsh:
-                        log_event(f"File '{name}{ext}' uploaded successfully.")
-                        client.send(f"TREASURE BURIED! ({name}{ext})".encode())
+                        log_event(f"File '{os.path.basename(fpath)}' uploaded successfully.")
+                        client.send(f"TREASURE BURIED! ({os.path.basename(fpath)})".encode())
                     else:
                         os.remove(fpath)
-                        log_event(f"File '{name}{ext}' upload failed (hash mismatch).")
+                        log_event(f"File '{os.path.basename(fpath)}' upload failed (hash mismatch).")
                         client.send("TREASURE CORRUPTED! Upload failed.".encode())
                 except Exception:
                     client.send("INVALID TREASURE COMMAND!".encode())

@@ -159,33 +159,15 @@ def upload_file():
                 version += 1
             print(f"🆕 Created new version: {filename}")
     else:
-        print(f"✨ New file: {filename}")
+        pass
 
-    filepath = os.path.join('shared_treasures', filename)
-    with open(filepath, 'wb') as f:
-        f.write(file_data)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    try:
-        new_file = File(
-            filename=filename,
-            size=file_size,
-            upload_time=datetime.now()
-        )
-        db.session.add(new_file)
-        db.session.commit()
-        print(f"💾 Saved to DB: {filename} (ID: {new_file.id})")
-    except Exception as e:
-        db.session.rollback()
-        flash('Database error', 'danger')
-        return redirect(url_for('dashboard'))
+    new_file = File(filename=filename, size=file_size, upload_time=datetime.utcnow())
+    db.session.add(new_file)
+    db.session.commit()
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect(('localhost', 5559))
-        s.send(f"TREASURE {filename} {file_size} {file_hash}".encode())
-        response = s.recv(1024).decode()
-        print(f"🔌 Server response: {response}")
-
-    flash('Upload successful!', 'success')
+    flash('File uploaded successfully', 'success')
     return redirect(url_for('dashboard'))
 
 @app.route('/download/<filename>')

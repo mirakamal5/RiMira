@@ -196,3 +196,16 @@ Error with ('127.0.0.1', 50687): [WinError 10053] An established connection was 
 New connection from ('127.0.0.1', 50707)
 File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
 Error with ('127.0.0.1', 50707): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 51262)
+File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
+Error with ('127.0.0.1', 51262): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 51639)
+Error with ('127.0.0.1', 51639): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 51645)
+Error with ('127.0.0.1', 51645): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 51683)
+Error with ('127.0.0.1', 51683): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 51785)
+Error with ('127.0.0.1', 51785): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 51883)
+Error with ('127.0.0.1', 51883): [WinError 10053] An established connection was aborted by the software in your host machine

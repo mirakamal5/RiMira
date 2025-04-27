@@ -3,6 +3,9 @@ import threading
 import os
 import hashlib
 from socket import *
+import sqlite3
+from app import db, File
+from datetime import datetime
 
 SHARED_DIR = "shared_treasures"
 LOG_FILE = "server_log.txt"
@@ -21,6 +24,23 @@ def calc_hash(filepath):
             hasher.update(chunk)
     return hasher.hexdigest()
 
+def insert_file_into_db(filename, size):
+    print("entered")
+    try:
+        new_file = File(
+            filename=filename,
+            size=size,
+            upload_time=datetime.now()
+        )
+        db.session.add(new_file)
+        db.session.commit()
+        print(f"File {filename} added to the database successfully")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving file to database: {e}")
+        log_event(f"Error saving file {filename} to the database: {e}")
+
+
 port = 5559
 server = socket(AF_INET, SOCK_STREAM)
 
@@ -35,6 +55,7 @@ server.listen(500)
 print(f"Server is listening on port {port}...")
 
 def handleclient(client, addr):
+    print("gi")
     print(f"New connection from {addr}")
     client.send("Welcome to Treasure Hunt!\n"
     "Choose an option:\n"
@@ -56,8 +77,7 @@ def handleclient(client, addr):
             arguments = parts[1] if len(parts) > 1 else ""
 
             print(f"Received command: {command} with arguments: {arguments}")
-
-            if command == "TREASURE":
+            if command.startswith("TREASURE"):
                 try:
                     args = arguments.rsplit(' ', 2)
                     if len(args) != 3:
@@ -70,12 +90,6 @@ def handleclient(client, addr):
                     original_name, ext = os.path.splitext(name)
                     name = original_name
 
-                    fpath = os.path.join(SHARED_DIR, f"{name}{ext}")
-                    dup = 1
-                    while os.path.exists(fpath):
-                        name = f"{original_name}_v{dup}"
-                        fpath = os.path.join(SHARED_DIR, f"{name}{ext}")
-                        dup += 1
                     
                     with open(fpath, 'wb') as f:
                         brcv = 0
@@ -89,6 +103,7 @@ def handleclient(client, addr):
                     comphash = calc_hash(fpath)
                     if comphash == hsh:
                         log_event(f"File '{name}{ext}' uploaded successfully.")
+                        
                         client.send(f"TREASURE BURIED! ({name}{ext})".encode())
                     else:
                         os.remove(fpath)

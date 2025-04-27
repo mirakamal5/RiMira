@@ -61,3 +61,71 @@ Error with ('127.0.0.1', 65030): [WinError 10053] An established connection was 
 New connection from ('127.0.0.1', 65160)
 File 'Chocolate_Chia_Seed_Pudding_v1.jpg' upload failed (hash mismatch).
 Error with ('127.0.0.1', 65160): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 61630)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 61630): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 61794)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 61794): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 61813)
+File 'Technical_Report__TransferX_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 61813): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 61974)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 61974): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62029)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62029): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62097)
+File 'rwservlet_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62097): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62463)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62463): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62497)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62497): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62531)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62531): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62551)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62551): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62601)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62601): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62631)
+File 'fall_2025_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62631): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62656)
+File 'fall_2025_1_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62656): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 62672)
+File 'Advocacy_Speech_Outline_v1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 62672): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63147)
+Error with ('127.0.0.1', 63147): [WinError 10054] An existing connection was forcibly closed by the remote host
+New connection from ('127.0.0.1', 63164)
+Error with ('127.0.0.1', 63164): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63173)
+Error with ('127.0.0.1', 63173): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63233)
+Error with ('127.0.0.1', 63233): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63238)
+Error with ('127.0.0.1', 63238): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63243)
+Error with ('127.0.0.1', 63243): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63247)
+Error with ('127.0.0.1', 63247): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63251)
+Error with ('127.0.0.1', 63251): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63256)
+Error with ('127.0.0.1', 63256): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63260)
+Error with ('127.0.0.1', 63260): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63286)
+Error with ('127.0.0.1', 63286): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63294)
+Error with ('127.0.0.1', 63294): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 63320)
+Error with ('127.0.0.1', 63320): [WinError 10053] An established connection was aborted by the software in your host machine

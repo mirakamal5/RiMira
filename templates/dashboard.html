@@ -3,92 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>File Sharing System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h2>Dashboard</h2>
 
-        <!-- File Upload Section -->
-        {% if session.get('user_id') %}
-            <h3>Upload a File</h3>
-            <form id="uploadForm" method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" class="upload-form">
+        <h1>File Sharing System</h1>
+
+        <!-- Dashboard Buttons -->
+        <div id="dashboard-buttons" class="dashboard-buttons">
+            <div class="button" id="uploadBtn">Upload</div>
+            <div class="button" id="downloadBtn">Download</div>
+        </div>
+
+        <!-- Logout Button (Small Text) -->
+        <div class="logout-text">
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </div>
+
+        <!-- Upload Section (Initially hidden) -->
+        <div id="upload-section" style="display: none;">
+            <h2>Upload a File</h2>
+            <form id="uploadForm" enctype="multipart/form-data" method="POST" action="{{ url_for('upload_file') }}">
                 <input type="file" name="file" id="fileInput" required>
                 <button type="submit">Upload</button>
             </form>
 
             <!-- Progress Bar -->
-            <div id="progress-container" style="width: 100%; background: #f3f3f3; border-radius: 5px; margin-top: 20px; display: none;">
-                <div id="progress-bar" style="height: 20px; width: 0; background: green; border-radius: 5px;"></div>
+            <div id="progress-container">
+                <div id="progress-bar"></div>
             </div>
-            <p id="progress-text" style="text-align: center; margin-top: 10px;"></p>
-        {% else %}
-            <p>Please log in to upload files.</p>
-        {% endif %}
+            <p id="progress-text"></p>
 
-        <!-- Available Files Section -->
-        <h3>Available Files</h3>
-        <ul class="file-list">
-            {% for file in files %}
-            <li class="file-item">
-                <span>{{ file.filename }} - {{ file.size }} bytes</span>
-                <a href="{{ url_for('download_file', filename=file.filename) }}" class="download-btn">Download</a>
+            <button id="backFromUpload" style="margin-top: 20px;">Back</button>
+        </div>
 
-                {% if session.get('role') == 'admin' %}
-                <!-- Only show delete button if user is admin -->
-                <form method="POST" action="{{ url_for('delete_file', file_id=file.id) }}" style="display: inline;">
-                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this file?')">Delete</button>
-                </form>
-                {% endif %}
-            </li>
-            {% else %}
-            <li>No files uploaded yet.</li>
-            {% endfor %}
-        </ul>
+        <!-- Download Section (Initially hidden) -->
+        <div id="download-section" style="display: none;">
+            <h2>Available Files</h2>
 
-        <!-- Logs Section for Admins -->
-        {% if session.get('role') == 'admin' %}
-        <h3>Activity Logs</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Action</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in logs %}
-                <tr>
-                    <td>{{ log.username }}</td>
-                    <td>{{ log.action }}</td>
-                    <td>{{ log.timestamp }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
+            <!-- Search Bar -->
+            <input type="text" id="searchInput" placeholder="Search files..." style="margin-bottom: 20px;">
 
-        <!-- Logout Button -->
-        {% if session.get('user_id') %}
-            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-        {% endif %}
+            <!-- File List Table -->
+            <table id="fileTable">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="fileTableBody">
+                    <!-- Dynamically populated -->
+                </tbody>
+            </table>
+
+            <button id="backFromDownload" style="margin-top: 20px;">Back</button>
+        </div>
+
     </div>
 
     <script>
-        // File upload with progress bar
+        // Show Upload Section
+        $('#uploadBtn').click(function() {
+            $('#dashboard-buttons').hide();
+            $('#upload-section').show();
+            $('#download-section').hide();
+        });
+
+        // Show Download Section
+        $('#downloadBtn').click(function() {
+            $('#dashboard-buttons').hide();
+            $('#download-section').show();
+            $('#upload-section').hide();
+            loadAvailableFiles();  // <-- load files when clicking Download
+        });
+
+        // Back Button from Upload
+        $('#backFromUpload').click(function() {
+            $('#upload-section').hide();
+            $('#dashboard-buttons').show();
+        });
+
+        // Back Button from Download
+        $('#backFromDownload').click(function() {
+            $('#download-section').hide();
+            $('#dashboard-buttons').show();
+        });
+
+        // Upload Progress Bar
         $('#uploadForm').on('submit', function(e) {
-            e.preventDefault(); // Prevent form from submitting normally
+            e.preventDefault();
 
             var formData = new FormData(this);
+            var fileInput = $('#fileInput')[0].files[0];
+            if (!fileInput) {
+                alert('Please select a file.');
+                return;
+            }
+
             var xhr = new XMLHttpRequest();
-
-            // Show progress bar when upload starts
-            $('#progress-container').show();
-
-            // Update progress bar as file uploads
             xhr.upload.addEventListener('progress', function(e) {
                 if (e.lengthComputable) {
                     var percent = (e.loaded / e.total) * 100;
@@ -97,23 +115,60 @@
                 }
             }, false);
 
-            // On upload complete
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     $('#progress-bar').css('width', '100%');
                     $('#progress-text').text('Upload complete!');
                     setTimeout(function() {
-                        $('#progress-container').hide(); // Hide progress bar after 2 seconds
+                        $('#progress-container').hide();
                     }, 2000);
                 } else {
                     $('#progress-text').text('Error uploading file.');
                 }
             };
 
-            // Send the form data (file)
             xhr.open('POST', '{{ url_for("upload_file") }}', true);
             xhr.send(formData);
         });
+
+        // Live search in the Download Section
+        $('#searchInput').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#fileTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+        // Load Available Files Dynamically
+        function loadAvailableFiles() {
+            $.ajax({
+                url: "{{ url_for('get_available_files') }}",  // Endpoint to get the available files
+                method: "GET",
+                success: function(response) {
+                    var files = response.files;
+                    var tbody = $('#fileTableBody');
+                    tbody.empty(); // Clear old files
+
+                    if (files.length === 0) {
+                        tbody.append('<tr><td colspan="2" style="text-align: center;">No files available 😔</td></tr>');
+                    } else {
+                        files.forEach(function(file) {
+                            var downloadLink = "{{ url_for('download_file', filename='') }}" + file;  // Build the correct download URL
+                            var row = `
+                                <tr>
+                                    <td>${file}</td>
+                                    <td><a href="${downloadLink}" class="download-btn">Download</a></td>
+                                </tr>
+                            `;
+                            tbody.append(row);
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Failed to load available files.');
+                }
+            });
+        }
     </script>
 </body>
 </html>

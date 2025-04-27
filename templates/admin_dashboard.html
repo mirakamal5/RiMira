@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+
+        <!-- Dashboard Buttons -->
+        <div id="dashboard-buttons" class="dashboard-buttons">
+            <div class="button" id="usersBtn">Users</div>
+            <div class="button" id="filesBtn">Files</div>
+            <div class="button" id="activityBtn">Activity</div>
+        </div>
+
+        <!-- Logout Text -->
+        <div class="logout-text">
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </div>
+
+        <!-- Users Section (Initially hidden) -->
+        <div id="users-section" style="display: none;">
+            <h2>All Users</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button id="backFromUsers" style="margin-top: 20px;">Back</button>
+        </div>
+
+        <!-- Files Section (Initially hidden) -->
+        <div id="files-section" style="display: none;">
+            <h2>All Files</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Size (KB)</th>
+                        <th>Upload Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                    <tr>
+                        <td>{{ file.filename }}</td>
+                        <td>{{ file.size }}</td>
+                        <td>{{ file.upload_time }}</td>
+                        <td>
+                            <form action="{{ url_for('delete_file', file_id=file.id) }}" method="POST">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button id="backFromFiles" style="margin-top: 20px;">Back</button>
+        </div>
+
+        <!-- Activity Section (Initially hidden) -->
+        <div id="activity-section" style="display: none;">
+            <h2>Activity Logs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button id="backFromActivity" style="margin-top: 20px;">Back</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Show Users Section
+        $('#usersBtn').click(function() {
+            $('#dashboard-buttons').hide();
+            $('#users-section').show();
+            $('#files-section').hide();
+            $('#activity-section').hide();
+        });
+
+        // Show Files Section
+        $('#filesBtn').click(function() {
+            $('#dashboard-buttons').hide();
+            $('#files-section').show();
+            $('#users-section').hide();
+            $('#activity-section').hide();
+        });
+
+        // Show Activity Section
+        $('#activityBtn').click(function() {
+            $('#dashboard-buttons').hide();
+            $('#activity-section').show();
+            $('#users-section').hide();
+            $('#files-section').hide();
+        });
+
+        // Back Button from Users
+        $('#backFromUsers').click(function() {
+            $('#users-section').hide();
+            $('#dashboard-buttons').show();
+        });
+
+        // Back Button from Files
+        $('#backFromFiles').click(function() {
+            $('#files-section').hide();
+            $('#dashboard-buttons').show();
+        });
+
+        // Back Button from Activity
+        $('#backFromActivity').click(function() {
+            $('#activity-section').hide();
+            $('#dashboard-buttons').show();
+        });
+    </script>
+
+</body>
+</html>

@@ -1,16 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Francois+One&display=swap');
+
 body {
-    font-family: 'Georgia', serif;
-    background-color: #f9f9f9;
+    font-family: 'Francois One', serif;
     margin: 0;
     padding: 0;
     background-image: url('/static/pic.jpg');
-
     background-size: cover;
-    background-position: center center;
+    background-position: center;
     background-attachment: fixed;
     color: #444;
 }
 
+/* Default container style (for upload, files, etc.) */
 .container {
     width: 90%;
     max-width: 700px;
@@ -22,11 +23,43 @@ body {
     text-align: center;
 }
 
-h1, h2, h3 {
-    font-family: 'Cinzel', serif;
-    color: #4E2A84;
-    margin-top: 20px;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+/* Special style ONLY for landing page */
+.landing-page .container {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    margin-top: 100px;
+    text-align: center;
+}
+
+.landing-page h1 {
+    font-family: 'Francois One', serif;
+    font-size: 48px;
+    color: #ffffff;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+    margin-bottom: 20px;
+}
+
+/* Flash message for login error */
+.flash {
+    color: red;
+    margin-top: 10px;
+}
+
+/* Default button styling */
+button {
+    padding: 20px;
+    font-size: 20px;
+    border-radius: 16px;
+    border: none;
+    background-color: #f39c12;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #e67e22;
 }
 
 a {
@@ -39,47 +72,50 @@ a:hover {
     color: #2980b9;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+/* Table styling for file list, etc. */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
 
-input[type="text"],
-input[type="password"],
-input[type="file"],
-button {
+th, td {
     padding: 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    margin-top: 10px;
+    border: 1px solid #ddd;
 }
 
-button {
+th {
     background-color: #f39c12;
     color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    border: none;
+    text-align: left;
 }
 
-button:hover {
-    background-color: #e67e22;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+td {
+    background-color: #f9f9f9;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+/* File item container */
+.file-item {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.flash {
-    color: red;
-    text-align: center;
-    margin-top: 10px;
+.download-btn, .delete-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
 }
 
+.download-btn:hover, .delete-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Progress bar styling */
 #progress-container {
     width: 100%;
     background: #f3f3f3;
@@ -116,43 +152,49 @@ p a:hover {
     text-decoration: underline;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+/* New Button Styling for Dashboard (Upload, Download) */
+.dashboard-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px; /* Added specific gap between flex items */
+    margin-top: 40px;
 }
 
-th, td {
-    padding: 12px;
-    border: 1px solid #ddd;
-}
-
-th {
+.dashboard-buttons .button {
+    width: 45%; /* Reduced from 48% to create more space between */
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
     background-color: #f39c12;
     color: white;
-    text-align: left;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    box-sizing: border-box;
 }
 
-td {
-    background-color: #f9f9f9;
+.dashboard-buttons .button:hover {
+    background-color: #e67e22;
+    transform: scale(1.1);
+}
+/* Small Logout Text */
+.logout-text {
+    margin-top: 20px;
+    text-align: center;
 }
 
-.file-item {
-    margin: 15px 0;
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.btn-logout {
+    font-size: 12px;
+    background: none;
+    color: #000000;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
-.download-btn, .delete-btn {
-    background-color: #3498db;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-}
-
-.download-btn:hover, .delete-btn:hover {
-    background-color: #2980b9;
+.btn-logout:hover {
+    color: #ffffff;
 }

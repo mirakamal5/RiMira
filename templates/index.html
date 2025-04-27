@@ -6,21 +6,12 @@
     <title>File Sharing System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="landing-page">
     <div class="container">
-        <h1>Welcome to the File Sharing System</h1>
-
-        {% if not session.get('logged_in') %}
-            <!-- Show the login button if not logged in -->
-            <a href="{{ url_for('login') }}">
-                <button>Login</button>
-            </a>
-        {% else %}
-            <!-- Redirect logged-in user to the dashboard page -->
-            <script>
-                window.location.href = "{{ url_for('dashboard') }}";
-            </script>
-        {% endif %}
+        <h1>Step into the world of treasures and secrets .Your journey is about to begin!</h1>
+        <a href="{{ url_for('login') }}">
+            <button>Start Your Adventure</button>
+        </a>
     </div>
 </body>
 </html>

@@ -183,7 +183,11 @@ def upload_file():
                     break
                 version += 1
             print(f"🆕 Created new version: {filename}")
+            
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     
+    file.seek(0)
+
     with open(file_path, 'wb') as f:
         while chunk := file.read(1024):  # Read and write 1024 bytes at a time
             f.write(chunk)

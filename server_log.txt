@@ -134,3 +134,65 @@ File 'fall_2025_v3.pdf' upload failed (hash mismatch).
 Error with ('127.0.0.1', 63419): [WinError 10053] An established connection was aborted by the software in your host machine
 New connection from ('127.0.0.1', 63426)
 Error with ('127.0.0.1', 63426): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 64969)
+Error with ('127.0.0.1', 64969): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 64973)
+Error with ('127.0.0.1', 64973): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 64977)
+Error with ('127.0.0.1', 64977): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 64985)
+File 'Technical_Report__TransferX.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 64985): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 49880)
+File 'fall_2025_v4.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 49880): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 49980)
+Error with ('127.0.0.1', 49980): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 49984)
+Error with ('127.0.0.1', 49984): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 49987)
+Error with ('127.0.0.1', 49987): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 49998)
+Error with ('127.0.0.1', 49998): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50091)
+Error with ('127.0.0.1', 50091): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50124)
+File 'Technical_Report__TransferX_1.pdf' upload failed (hash mismatch).
+Error with ('127.0.0.1', 50124): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50167)
+Error with ('127.0.0.1', 50167): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50438)
+File 'fall_2025.pdf' downloaded (offset 0).
+Error with ('127.0.0.1', 50438): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50509)
+Error with ('127.0.0.1', 50509): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50514)
+File 'Technical_Report__TransferX_1.pdf' downloaded to C:\Users\reems\Downloads\Technical_Report__TransferX_1.pdf (offset 0).
+Error with ('127.0.0.1', 50514): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50599)
+File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
+Error with ('127.0.0.1', 50599): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50606)
+File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
+Error with ('127.0.0.1', 50606): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50610)
+File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
+Error with ('127.0.0.1', 50610): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50614)
+File 'Technical_Report__TransferX_1.pdf' downloaded to C:\Users\reems\Downloads\Technical_Report__TransferX_1.pdf (offset 0).
+Error with ('127.0.0.1', 50614): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50620)
+File 'Technical_Report__TransferX_1.pdf' downloaded to C:\Users\reems\Downloads\Technical_Report__TransferX_1.pdf (offset 0).
+Error with ('127.0.0.1', 50620): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50625)
+File 'Technical_Report__TransferX_1.pdf' downloaded to C:\Users\reems\Downloads\Technical_Report__TransferX_1.pdf (offset 0).
+Error with ('127.0.0.1', 50625): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50664)
+File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
+Error with ('127.0.0.1', 50664): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50687)
+File 'Technical_Report__TransferX_1.pdf' downloaded to C:\Users\reems\Downloads\Technical_Report__TransferX_1.pdf (offset 0).
+Error with ('127.0.0.1', 50687): [WinError 10053] An established connection was aborted by the software in your host machine
+New connection from ('127.0.0.1', 50707)
+File 'fall_2025.pdf' downloaded to C:\Users\reems\Downloads\fall_2025.pdf (offset 0).
+Error with ('127.0.0.1', 50707): [WinError 10053] An established connection was aborted by the software in your host machine

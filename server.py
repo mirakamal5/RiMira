@@ -3,7 +3,6 @@ import threading
 import os
 import hashlib
 from socket import *
-import sqlite3
 from app import db, File
 from datetime import datetime
 
@@ -24,21 +23,10 @@ def calc_hash(filepath):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-def insert_file_into_db(filename, size):
-    print("entered")
-    try:
-        new_file = File(
-            filename=filename,
-            size=size,
-            upload_time=datetime.now()
-        )
-        db.session.add(new_file)
-        db.session.commit()
-        print(f"File {filename} added to the database successfully")
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error saving file to database: {e}")
-        log_event(f"Error saving file {filename} to the database: {e}")
+def get_downloads_directory():
+    downloads = os.path.join(os.path.expanduser("~"), "Downloads")
+    os.makedirs(downloads, exist_ok=True)  # Ensure Downloads folder exists
+    return downloads
 
 
 port = 5559
@@ -91,14 +79,17 @@ def handleclient(client, addr):
                     name = original_name
 
                     fpath = os.path.join(SHARED_DIR, f"{name}{ext}")
-                    
+                    print("Shared Treasures full path:", fpath)
                     with open(fpath, 'wb') as f:
+                        print(f"Receiving file {name}{ext} of size {size}")
+                        print(f"Receiving data chunk of {len(data)} bytes")
                         brcv = 0
                         while brcv < size:
                             data = client.recv(1024)
                             if not data:
                                 break
                             brcv += len(data)
+                            print(f"Received {len(data)} bytes, total received: {brcv}/{size}")
                             f.write(data)
                     
                     comphash = calc_hash(fpath)
@@ -131,16 +122,24 @@ def handleclient(client, addr):
                     fhash = calc_hash(path)
                     filesize = os.path.getsize(path)
                     client.send(f"READY {filesize} {fhash}".encode())
-                    with open(path, 'rb') as f:
-                        f.seek(offset)
-                        remaining = filesize - offset
-                        while remaining > 0:
-                            chunk = f.read(min(1024, remaining))
-                            if not chunk:
-                                break
-                            client.send(chunk)
-                            remaining -= len(chunk)
-                    log_event(f"File '{name}' downloaded (offset {offset}).")
+
+                    downloads_dir = get_downloads_directory()
+                    save_path = os.path.join(downloads_dir, name)
+                    print(f"Downloading file to: {save_path}")
+
+                    with open(save_path, 'wb') as save_file:
+                        with open(path, 'rb') as f:
+                            f.seek(offset)
+                            remaining = filesize - offset
+                            while remaining > 0:
+                                chunk = f.read(min(1024, remaining))
+                                if not chunk:   
+                                    break
+                                client.send(chunk)  # Send to client
+                                print("hi")
+                                save_file.write(chunk)  # Save to the Downloads directory
+                                remaining -= len(chunk)
+                    log_event(f"File '{name}' downloaded to {save_path} (offset {offset}).")
                 else:
                     client.send("TREASURE NOT FOUND!".encode())
 

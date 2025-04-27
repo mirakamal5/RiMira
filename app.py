@@ -161,16 +161,10 @@ def upload_file():
     else:
         print(f"✨ New file: {filename}")
 
-    # =============================================
-    # 2. Save to filesystem
-    # =============================================
     filepath = os.path.join('shared_treasures', filename)
     with open(filepath, 'wb') as f:
         f.write(file_data)
 
-    # =============================================
-    # 3. Save to database
-    # =============================================
     try:
         new_file = File(
             filename=filename,
@@ -185,9 +179,6 @@ def upload_file():
         flash('Database error', 'danger')
         return redirect(url_for('dashboard'))
 
-    # =============================================
-    # 4. Notify the file server
-    # =============================================
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(('localhost', 5559))
         s.send(f"TREASURE {filename} {file_size} {file_hash}".encode())
@@ -197,14 +188,12 @@ def upload_file():
     flash('Upload successful!', 'success')
     return redirect(url_for('dashboard'))
 
-# Download file route
 @app.route('/download/<filename>')
 def download_file(filename):
     if 'user_id' not in session:
         flash('You must be logged in to download files.', 'warning')
         return redirect(url_for('login'))
 
-    # Create a socket to communicate with the server
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # Connect to the server
         s.connect(('localhost', 5559))  # Use the server's IP and port
